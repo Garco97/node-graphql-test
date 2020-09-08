@@ -1,42 +1,53 @@
 var express = require('express');
 var { graphqlHTTP } = require('express-graphql');
 var { buildSchema } = require('graphql');
+var  mysql = require('mysql');
 const fs = require('fs');
-
-var { Miembro, Persona } = require("./miembro")
-
+var { Miembro } = require("./miembro")
 const jsonString = fs.readFileSync('./familia.json')
-const familia = JSON.parse(jsonString)
-console.log(Miembro.schema())
-var schema = buildSchema(`
-  type Miembro{
-    name:String!
-    age: Int!
-  }
-  type Query {
-    getAllFamily: [Miembro],
-    getFamilyNumber(name:String!):Miembro
-  }
-`);
+const miembros = JSON.parse(jsonString)
+
+var con = mysql.createConnection({
+  host: "127.0.0.1",
+  user: "diego",
+  password: "",
+  database: "graphql"
+});
+
+var sql = "SELECT * FROM Miembro WHERE id=1"
+
+con.connect(function(err) {
+  if (err) throw err;
+  con.query(sql, function (err, result, fields) {
+    if (err) throw err;
+    console.log(result);
+  });
+});
+var schema = buildSchema(
+  Miembro.schema() +
+  `type Query {
+      getMemberByName(id:Int!):Miembro
+      getAllFamily: [Miembro],
+    }`
+  );
 
 var root = {
-  getFamilyNumber:({name}) => {
-    for (let index = 0; index < familia.length; index++) {
-      if(familia[index].name == name)
-        return familia[index];
+  getMemberByName:({id}) => {
+    for (let index = 0; index < miembros.length; index++) {
+      if(miembros[index].id == id)
+        return miembros[index];
     }
-    return{name:"ERROR", age:-1};
+    return{id:-1, name:"ERROR", age:-1};
   },
-  getAllFamily:()=>{
+  getAllFamily:() => {
     fam = []
-    for (let index = 0; index < familia.length; index++) {
-      let aux = Object.assign(new Miembro, familia[index])
+    for (let index = 0; index < miembros.length; index++) {
+      let aux = Object.assign(new Miembro, miembros[index])
       fam.push(aux)
     }
     return fam;
   }
 }
-
 
 var app = express();
 app.use('/graphql', graphqlHTTP({

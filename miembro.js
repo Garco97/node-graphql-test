@@ -1,22 +1,16 @@
 class Miembro{
-    constructor(nombre, edad){
+    constructor(id, nombre, edad){
+        this.id = id
         this.nombre = nombre;
         this.edad = edad;
     }
     static schema(){
-        return 
-        `type Miembro{
+        return `type Miembro{
+            id: Int!
             name:String!
             age: Int!
-          }
-        `
-    }
-}
-class Persona{
-    constructor(nombre, edad){
-        this.nombre = nombre;
-        this.edad = edad;
+        }`
     }
 }
 
-module.exports = { Miembro, Persona};
+module.exports = { Miembro };
