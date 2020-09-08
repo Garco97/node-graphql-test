@@ -3,16 +3,19 @@ var { graphqlHTTP } = require('express-graphql');
 var { buildSchema } = require('graphql');
 const fs = require('fs');
 
+var { Miembro, Persona } = require("./miembro")
+
 const jsonString = fs.readFileSync('./familia.json')
 const familia = JSON.parse(jsonString)
-
+console.log(Miembro.schema())
 var schema = buildSchema(`
   type Miembro{
     name:String!
     age: Int!
   }
   type Query {
-    getFamilyNumber(name:String!): Miembro
+    getAllFamily: [Miembro],
+    getFamilyNumber(name:String!):Miembro
   }
 `);
 
@@ -22,8 +25,15 @@ var root = {
       if(familia[index].name == name)
         return familia[index];
     }
-
     return{name:"ERROR", age:-1};
+  },
+  getAllFamily:()=>{
+    fam = []
+    for (let index = 0; index < familia.length; index++) {
+      let aux = Object.assign(new Miembro, familia[index])
+      fam.push(aux)
+    }
+    return fam;
   }
 }
 
