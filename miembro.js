@@ -7,8 +7,8 @@ class Miembro{
     static schema(){
         return `type Miembro{
             id: Int!
-            name:String!
-            age: Int!
+            nombre: String!
+            edad: Int!
         }`
     }
 }
